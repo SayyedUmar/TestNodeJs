@@ -87,45 +87,64 @@ exports.setup_schedule = async (site_id, shift, trip_type, date, list) => {
     let newDate= date.utc().format();
     var query = '';
     for (let item of list) {
-        let recod = await isTripExist(newDate, shift, item);
+        let type = trip_type === 'check_in' ? 0 : 1;
+        let recod = await isTripExist(newDate, shift, item, type, site_id);
         console.log('\n---------- duplicate exist', JSON.stringify(recod));
+        var res_arr = []
         if (recod.length > 0) {
             if (recod[0].status === 'upcoming') {
-                query = `UPDATE employee_trips SET shift_id='${shift.id}', updated_at='${newDate}' date='${newDate}' schedule_date='${newDate}' `
-                + `WHERE id='${recod[0].id}' ;`;
+                query = `UPDATE employee_trips SET shift_id='${shift.id}', trip_type=${type}, 
+                updated_at='${newDate}', date='${newDate}', schedule_date='${newDate}' 
+                WHERE id='${recod[0].id}' ;`;
             } else {
                 
             }
             console.log('update query', query)
         } else {
-            let type = trip_type === 'check_in' ? 0 : 1;
+            
             query = `INSERT INTO employee_trips(site_id,shift_id,employee_id,date,schedule_date,created_at,updated_at,status,trip_type) `+
             ` VALUES ('${site_id}','${shift.id}','${item.entity_id}','${newDate}', '${newDate}', '${newDate}', '${newDate}','upcoming', '${type}') ;`;
         }
-        console.log(query);
+        if (query.length > 10) {
+            let res = await baseModel.read(query);
+            res_arr.push(res);
+        }
     }
     
-    return "";
-    // return baseModel.read(query)
+    return res_arr;
 }
 
 exports.getShiftUsers = (site_id, shift, trip_type, date) => {
     let type = trip_type === 'check_in' ? 0 : 1;
-    let query = `SELECT u.id,entity_id,trip_type, t.status, shift_id,CONCAT(ifnull(f_name,''),' ',ifnull(l_name,'')) AS name 
+    let query = `SELECT u.id,t.id as emp_trip_id,entity_id,trip_type, t.status, shift_id,CONCAT(ifnull(f_name,''),' ',ifnull(l_name,'')) AS name 
         FROM employee_trips t join users u on t.employee_id=u.entity_id
-        WHERE shift_id=${shift.id} AND (schedule_date='${date}' || date='${date}') AND trip_type='${type}'
+        WHERE shift_id=${shift.id} AND site_id=${site_id} AND
+        (schedule_date='${date}' || date='${date}') AND trip_type='${type}'
         order by name;`
     console.log(query);
     return baseModel.read(query)
     // return query;
 }
 
-const isTripExist = (date, shift, emp) => {
-    let query = `SELECT id,trip_id,status FROM employee_trips WHERE date='${date}' AND employee_id=${emp.entity_id} AND shift_id=${shift.id} ;`
-    // console.log('isTripExist ', query)
+const isTripExist = (date, shift, emp, trip_type, site_id) => {
+//     SELECT id,trip_id,status FROM employee_trips 
+//  WHERE date like '2020-01-27%' AND employee_id=7929  AND status='upcoming' 
+//  AND trip_type=1;
+    let query = `SELECT id,trip_id,status FROM employee_trips 
+        WHERE employee_id=${emp.entity_id} AND status='upcoming' 
+        AND site_id=${site_id} 
+        AND trip_type=${trip_type} AND date LIKE '${date.substr(0,10)}%' ;`
+    console.log('\nisTripExist ', query+'\n')
     return baseModel.read(query)
 }
 
-
+exports.deleteUserShift = (site_id, shift, trip_type, date, employee_id, emp_trip_id) => {
+    let type = trip_type === 'check_in' ? 0 : 1;
+    let query = `DELETE FROM employee_trips
+        WHERE status='upcoming' AND trip_type=${type} AND id=${emp_trip_id}
+        AND employee_id=${employee_id} AND shift_id=${shift.id} ;`
+    console.log('deleteUserShift ', query)
+    return baseModel.delete(query)
+}
 
 

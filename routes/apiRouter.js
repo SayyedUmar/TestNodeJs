@@ -26,5 +26,7 @@ router.post('/getUserShifts', test.getUserShifts);
 router.post('/getAllShifts', test.getAllShifts);
 router.post('/setup_schedule', test.setup_schedule);
 router.post('/getShiftUsers', test.getShiftUsers);
+router.post('/deleteUserShift', test.deleteUserShift);
+
 
 module.exports = router

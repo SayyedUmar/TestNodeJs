@@ -103,3 +103,17 @@ exports.getShiftUsers = async (req, res) => {
     let shifts = await model.getShiftUsers(site_id, shift, trip_type, d)
     return res.json(helper.responseFormat(true, shifts, {}, ""));    
 }
+
+
+exports.deleteUserShift = async (req, res) => {
+    var {site_id, shift, trip_type, date, employee_id, emp_trip_id } = req.body;
+    if (!emp_trip_id || !site_id || !shift || !trip_type || !date || !employee_id) {
+        return res.json(helper.responseFormat(false, {}, {}, "invalid data"))
+    } 
+    let m = moment(date)
+    var d = m.toISOString();
+    d = d.substr(0, d.indexOf(':00.'))
+    d = d + 'Z';
+    let shifts = await model.deleteUserShift(site_id, shift, trip_type, d, employee_id, emp_trip_id)
+    return res.json(helper.responseFormat(true, shifts, {}, ""));    
+}
