@@ -19,8 +19,8 @@ exports.getUserTrips = async (req, res) => {
         try {
             let user = await model.getUserTrips(emp_id, d1.format("DD-MM-YYYY"), d2.format("DD-MM-YYYY"));
             return res.json(helper.responseFormat(true, user, {}, ""));
-        } catch(e) {
-            return res.json(helper.responseFormat(false, {}, {error:e}, "Something went wrong"));
+        } catch (e) {
+            return res.json(helper.responseFormat(false, {}, { error: e }, "Something went wrong"));
         }
     } else {
         let m = moment(current_date, 'DD-MM-YYYY');
@@ -30,8 +30,8 @@ exports.getUserTrips = async (req, res) => {
         try {
             let user = await model.getUserTrips(emp_id, m.weekday(1).format("DD-MM-YYYY"), m.weekday(7).format("DD-MM-YYYY"));
             return res.json(helper.responseFormat(true, user, {}, ""));
-        } catch(e) {
-            return res.json(helper.responseFormat(false, {}, {error:e}, "Something went wrong"));
+        } catch (e) {
+            return res.json(helper.responseFormat(false, {}, { error: e }, "Something went wrong"));
         }
     }
 }
@@ -44,8 +44,8 @@ exports.getUserShifts = async (req, res) => {
     try {
         let user = await model.getUserShifts(user_id)
         return res.json(helper.responseFormat(true, user, {}, ""));
-    } catch(e) {
-        return res.json(helper.responseFormat(false, {}, {error:e}, "Something went wrong"));
+    } catch (e) {
+        return res.json(helper.responseFormat(false, {}, { error: e }, "Something went wrong"));
     }
 }
 
@@ -70,8 +70,8 @@ exports.getAllShifts = async (req, res) => {
     try {
         let shifts = await model.getAllShifts(site_id, isWeekend)
         return res.json(helper.responseFormat(true, shifts, {}, ""));
-    } catch(e) {
-        return res.json(helper.responseFormat(false, {}, {error:e}, "Something went wrong"));
+    } catch (e) {
+        return res.json(helper.responseFormat(false, {}, { error: e }, "Something went wrong"));
     }
 }
 
@@ -85,8 +85,8 @@ exports.searchEmployees = async (req, res) => {
     try {
         let shifts = await model.searchEmployees(site_id, emp_name, shift_id, offset)
         return res.json(helper.responseFormat(true, shifts, {}, ""));
-    } catch(e) {
-        return res.json(helper.responseFormat(false, {}, {error:e}, "Something went wrong"));
+    } catch (e) {
+        return res.json(helper.responseFormat(false, {}, { error: e }, "Something went wrong"));
     }
 
 }
@@ -101,8 +101,8 @@ exports.setup_schedule = async (req, res) => {
     try {
         let shifts = await model.setup_schedule(site_id, shift, trip_type, moment(date), list)
         return res.json(helper.responseFormat(true, shifts, {}, ""));
-    } catch(e) {
-        return res.json(helper.responseFormat(false, {}, {error:e}, "Something went wrong"));
+    } catch (e) {
+        return res.json(helper.responseFormat(false, {}, { error: e }, "Something went wrong"));
     }
 }
 
@@ -118,13 +118,13 @@ exports.getShiftUsers = async (req, res) => {
     try {
         let shifts = await model.getShiftUsers(site_id, shift, trip_type, d)
         return res.json(helper.responseFormat(true, shifts, {}, ""));
-    } catch(e) {
-        return res.json(helper.responseFormat(false, {}, {error:e}, "Something went wrong"));
+    } catch (e) {
+        return res.json(helper.responseFormat(false, {}, { error: e }, "Something went wrong"));
     }
 }
 
 
-exports.deleteUserShift = async (req, res) => {
+exports.deleteUserShift = (req, res) => {
     var { site_id, shift, trip_type, date, employee_id, emp_trip_id } = req.body;
     if (!emp_trip_id || !site_id || !shift || !trip_type || !date || !employee_id) {
         return res.json(helper.responseFormat(false, {}, {}, "invalid data"))
@@ -133,12 +133,9 @@ exports.deleteUserShift = async (req, res) => {
     var d = m.toISOString();
     d = d.substr(0, d.indexOf(':00.'))
     d = d + 'Z';
-    try {
-        let shifts = await model.deleteUserShift(site_id, shift, trip_type, d, employee_id, emp_trip_id)
-        return res.json(helper.responseFormat(true, shifts, {}, ""));
-    } catch (e){
-        return res.json(helper.responseFormat(false, {}, {error:e}, "Something went wrong"));
-    }
 
+    model.deleteUserShift(site_id, shift, trip_type, d, employee_id, emp_trip_id)
+        .then(val => res.json(helper.responseFormat(true, val, {}, "")))
+        .catch(e => res.json(helper.responseFormat(false, {}, { error: e }, "Something went wrong")))
 
 }

@@ -42,7 +42,7 @@ exports.searchEmployees = (site_id, emp_name, shift_id,offset) => {
         WHERE entity_type='Employee' AND shift_id=${shift_id} 
         AND (f_name like '${emp_name}%' || l_name like '${emp_name}%') 
         order by name limit ${count};`;  //AND site_id=${site_id}
-    console.log(query);
+    // console.log(query);
     return baseModel.read(query)
 }
 
