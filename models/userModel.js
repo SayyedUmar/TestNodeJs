@@ -34,14 +34,6 @@ exports.getUserTrips = (emp_id, start, end) => {
 }
 
 
-exports.upsertTrip = (emp_id, trip_type, schedule_date, site_id, shift_id) => {
-    //created_at , updated_at, date, status=upcoming, 
-    let query = ``;
-    console.log(query);
-    return baseModel.read(query)
-}
-
-
 
 exports.searchEmployees = (site_id, emp_name, shift_id,offset) => {
     let count = (offset ? offset : 5)

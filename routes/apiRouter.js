@@ -19,7 +19,6 @@ router.get('/user/:id', user.getUserByID);
 router.get('/user_count', user.getUserCount);
 
 router.post('/getUserTrips', test.getUserShifts);
-router.post('/upsertTrip', test.upsertTrip);
 
 router.post('/searchEmployee', test.searchEmployees);
 router.post('/getUserShifts', test.getUserShifts);
