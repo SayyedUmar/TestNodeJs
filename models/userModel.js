@@ -29,7 +29,7 @@ exports.getUserCount = () => {
 exports.getUserTrips = (emp_id, start, end) => {
     //SELECT * from employee_trips WHERE employee_id =9225 and (schedule_date BETWEEN STR_TO_DATE('20-01-2020', '%d-%m-%Y') AND STR_TO_DATE('24-01-2020', '%d-%m-%Y'))
     let query = `SELECT * from employee_trips WHERE employee_id="${emp_id}" and schedule_date between STR_TO_DATE('${start}', '%d-%m-%Y') and STR_TO_DATE('${end}', '%d-%m-%Y') ;`;
-    console.log(query);
+    // console.log(query);
     return baseModel.read(query)
 }
 
@@ -37,25 +37,20 @@ exports.getUserTrips = (emp_id, start, end) => {
 
 exports.searchEmployees = (site_id, emp_name, shift_id,offset) => {
     let count = (offset ? offset : 5)
-//     SELECT u.id, u.entity_id, CONCAT(COALESCE(u.f_name,''),' ',COALESCE(u.l_name,'')) AS name 
-// from  shift_users s join users u on s.user_id = u.id
-// WHERE u.entity_type='Employee' AND (u.f_name like 'aj%' || u.l_name like 'a%')
-// and shift_id = 621 And active = true
-//  order by name limit 10;
-    let query = `SELECT u.id, u.entity_id, CONCAT(COALESCE(u.f_name,''),' ',COALESCE(u.l_name,'')) AS name `
-    +` from  shift_users s join users u on s.user_id = u.id `
-    +` WHERE entity_type='Employee' AND shift_id=${shift_id} ` //AND site_id=${site_id}
-    + ` AND (f_name like '${emp_name}%' || l_name like '${emp_name}%') `
-    +` order by name limit ${count};`;
+    let query = `SELECT u.id, u.entity_id,  concat(ifnull(f_name,''),' ', ifnull(l_name, '')) as name 
+        from  shift_users s INNER join users u on s.user_id = u.id 
+        WHERE entity_type='Employee' AND shift_id=${shift_id} 
+        AND (f_name like '${emp_name}%' || l_name like '${emp_name}%') 
+        order by name limit ${count};`;  //AND site_id=${site_id}
     console.log(query);
     return baseModel.read(query)
 }
 
 exports.getUserShifts = (user_id) => {
     let query = `SELECT s.id, s.name, su.user_id, s.start_time, s.end_time `+
-    ` FROM  shift_users su join shifts s on su.shift_id = s.id `+
+    ` FROM  shift_users su INNER join shifts s on su.shift_id = s.id `+
     ` where user_id = ${user_id};`
-    console.log(query);
+    // console.log(query);
     return baseModel.read(query)
 }
 
@@ -69,7 +64,7 @@ exports.getUserShifts = (user_id) => {
 exports.getAllShifts = (siteId, isWeekend) => {
     let query = `SELECT id, name, start_time, end_time, working_day, site_id FROM shifts `+
     ` WHERE site_id='${siteId}' AND status='active' ;`; //AND working_day='${isWeekend?'Weekend':'Weekday'}'
-    console.log(query);
+    // console.log(query);
     return baseModel.read(query)
 }
 
@@ -91,9 +86,8 @@ exports.setup_schedule = async (site_id, shift, trip_type, date, list) => {
             } else {
                 
             }
-            console.log('update query', query)
+            // console.log('update query', query)
         } else {
-            
             query = `INSERT INTO employee_trips(site_id,shift_id,employee_id,date,schedule_date,created_at,updated_at,status,trip_type) `+
             ` VALUES ('${site_id}','${shift.id}','${item.entity_id}','${newDate}', '${newDate}', '${newDate}', '${newDate}','upcoming', '${type}') ;`;
         }
@@ -109,24 +103,20 @@ exports.setup_schedule = async (site_id, shift, trip_type, date, list) => {
 exports.getShiftUsers = (site_id, shift, trip_type, date) => {
     let type = trip_type === 'check_in' ? 0 : 1;
     let query = `SELECT u.id,t.id as emp_trip_id,entity_id,trip_type, t.status, shift_id,CONCAT(ifnull(f_name,''),' ',ifnull(l_name,'')) AS name 
-        FROM employee_trips t join users u on t.employee_id=u.entity_id
+        FROM employee_trips t INNER join users u on t.employee_id=u.entity_id
         WHERE shift_id=${shift.id} AND site_id=${site_id} AND
         (schedule_date='${date}' || date='${date}') AND trip_type='${type}'
         order by name;`
-    console.log(query);
+    // console.log(query);
     return baseModel.read(query)
-    // return query;
 }
 
 const isTripExist = (date, shift, emp, trip_type, site_id) => {
-//     SELECT id,trip_id,status FROM employee_trips 
-//  WHERE date like '2020-01-27%' AND employee_id=7929  AND status='upcoming' 
-//  AND trip_type=1;
     let query = `SELECT id,trip_id,status FROM employee_trips 
         WHERE employee_id=${emp.entity_id} AND status='upcoming' 
         AND site_id=${site_id} 
         AND trip_type=${trip_type} AND date LIKE '${date.substr(0,10)}%' ;`
-    console.log('\nisTripExist ', query+'\n')
+    // console.log('\nisTripExist ', query+'\n')
     return baseModel.read(query)
 }
 
@@ -135,7 +125,7 @@ exports.deleteUserShift = (site_id, shift, trip_type, date, employee_id, emp_tri
     let query = `DELETE FROM employee_trips
         WHERE status='upcoming' AND trip_type=${type} AND id=${emp_trip_id}
         AND employee_id=${employee_id} AND shift_id=${shift.id} ;`
-    console.log('deleteUserShift ', query)
+    // console.log('deleteUserShift ', query)
     return baseModel.delete(query)
 }
 

@@ -6,8 +6,6 @@ const moment = require('moment')
 
 exports.getUserTrips = async (req, res) => {
     let { emp_id, current_date, start_date, end_date } = req.body;
-    console.log(req.body);
-
     if (typeof emp_id !== 'number') {
         return res.json(helper.responseFormat(false, {}, {}, "invalid emp_id"))
     } else if (!(typeof current_date === 'string')) {
