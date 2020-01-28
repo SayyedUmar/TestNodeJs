@@ -76,7 +76,7 @@ exports.setup_schedule = async (site_id, shift, trip_type, date, list) => {
     for (let item of list) {
         let type = trip_type === 'check_in' ? 0 : 1;
         let recod = await isTripExist(newDate, shift, item, type, site_id);
-        console.log('\n---------- duplicate exist', JSON.stringify(recod));
+        // console.log('\n---------- duplicate exist', JSON.stringify(recod));
         var res_arr = []
         if (recod.length > 0) {
             if (recod[0].status === 'upcoming') {

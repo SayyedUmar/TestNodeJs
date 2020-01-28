@@ -11,12 +11,12 @@
             "runtimeExecutable": "npm",
             "runtimeArgs": [
                 "run-script",
-                "debug"
+                "start:dev"
             ],
-            "port": 4003,
             "skipFiles": [
                 "<node_internals>/**"
             ],
+            "program": "${workspaceFolder}/entry.js",
             "envFile": "${workspaceFolder}/.env"
         },
         {
