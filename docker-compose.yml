@@ -1,0 +1,36 @@
+version: '3'
+
+services: 
+    node_js_app: 
+        env_file:
+            - ./.env
+        build:
+            context: "./node_js_app"
+            dockerfile: "Dockerfile"
+        ports:
+            - '8001:4001'
+        restart: on-failure
+
+# version: '2.1'
+
+# services:
+#   test_nodejs_server:
+#     image: test_nodejs_server
+#     build: .
+#     environment:
+#       NODE_ENV: production
+#     ports:
+#       - 3001:3001
+
+
+
+
+
+# FROM node:10.13-alpine
+# ENV NODE_ENV production
+# WORKDIR /usr/src/app
+# COPY ["package.json", "package-lock.json*", "npm-shrinkwrap.json*", "./"]
+# RUN npm install --production --silent && mv node_modules ../
+# COPY . .
+# EXPOSE 3001
+# CMD npm start
