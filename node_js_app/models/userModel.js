@@ -129,4 +129,8 @@ exports.deleteUserShift = (site_id, shift, trip_type, date, employee_id, emp_tri
     return baseModel.delete(query)
 }
 
+exports.googleDirectionApi = () => {
+    
+}
+
 

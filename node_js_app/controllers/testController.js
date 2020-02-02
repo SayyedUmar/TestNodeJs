@@ -3,6 +3,8 @@
 const model = require('../models/userModel');
 const helper = require('../helpers/commonHelper')
 const moment = require('moment')
+const _ = require('lodash')
+const request = require('request')
 
 exports.getUserTrips = async (req, res) => {
     let { emp_id, current_date, start_date, end_date } = req.body;
@@ -138,4 +140,44 @@ exports.deleteUserShift = (req, res) => {
         .then(val => res.json(helper.responseFormat(true, val, {}, "")))
         .catch(e => res.json(helper.responseFormat(false, {}, { error: e }, "Something went wrong")))
 
+}
+
+const baseGoogleMapUrl2 = 'https://maps.googleapis.com/maps/api/directions/json?'
+const mapKey = 'AIzaSyCKmOycgAQLZGOsJBSFkhOp2LWakMC6vn0';
+
+exports.getDirections = (req, res) => {
+    const { locations } = req.body;
+    if (!locations || !Array.isArray(locations) || locations.length < 2) 
+        return res.json(helper.responseFormat(false, {}, {}, "locations array is required"))
+    const latLongArray = _.map(locations, function (n) {
+        return n.lat + '%2C' + n.lng
+    })
+
+    // waypoints
+    let waypoints = _.cloneDeep(latLongArray)
+    waypoints.splice(0, 1)
+    waypoints.splice(waypoints.length - 1, 1)
+    waypoints = waypoints.join("%7C")
+
+    var googleDirectionApi = baseGoogleMapUrl2 + `origin=${latLongArray[0]}&destination=${latLongArray[latLongArray.length - 1]}&waypoints=${waypoints}&key=${mapKey}&mode=driving`;
+    const arrivalTimeInSeconds = new Date();
+    googleDirectionApi = googleDirectionApi + `&arrival_time=${arrivalTimeInSeconds}`;
+
+    const params = {
+        url: googleDirectionApi,
+        method: 'GET'
+    }
+
+    request(params, async (error, response, body) => {
+        if (error) {
+            res.json(helper.responseFormat(false, {}, {}, "Something went wrong"));
+        } else {
+            body = JSON.parse(body)
+            if (body.status === 'OK') {
+                return res.json(helper.responseFormat(true,  body, {}, ""));
+            } else {
+                res.json(helper.responseFormat(false, {}, body, body.error_message));
+            }
+        }
+    });
 }
