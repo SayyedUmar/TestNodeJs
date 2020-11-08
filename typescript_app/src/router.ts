@@ -2,11 +2,14 @@ import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from "cors";
 import bodyParser from 'body-parser';
 
-import controller from './controllers/testController'
+import TestController from './controllers/testController';
+// import UserModel from './models/userModel';
 
 
 
 export const router = express.Router();
+
+const controller = new TestController()
 
 //options for cors midddleware
 const options:cors.CorsOptions = {
@@ -24,9 +27,9 @@ router.use(bodyParser.json())
 router.get('/users', controller.getUsers)
 
 
-router.post('/searchEmployee', controller.searchEmployees);
-router.post('/getUserShifts', controller.getUserShifts);
-router.post('/getAllShifts', controller.getAllShifts);
-router.post('/setup_schedule', controller.setup_schedule);
-router.post('/getShiftUsers', controller.getShiftUsers);
-router.post('/deleteUserShift', controller.deleteUserShift);
+// router.post('/searchEmployee', controller.searchEmployees);
+// router.post('/getUserShifts', controller.getUserShifts);
+// router.post('/getAllShifts', controller.getAllShifts);
+// router.post('/setup_schedule', controller.setup_schedule);
+// router.post('/getShiftUsers', controller.getShiftUsers);
+// router.post('/deleteUserShift', controller.deleteUserShift);

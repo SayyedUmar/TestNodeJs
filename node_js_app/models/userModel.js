@@ -104,7 +104,7 @@ exports.getShiftUsers = (site_id, shift, trip_type, date) => {
     let type = trip_type === 'check_in' ? 0 : 1;
     let query = `SELECT u.id,t.id as emp_trip_id,entity_id,trip_type, t.status, shift_id,CONCAT(ifnull(f_name,''),' ',ifnull(l_name,'')) AS name 
         FROM employee_trips t INNER join users u on t.employee_id=u.entity_id
-        WHERE shift_id=${shift.id} AND site_id=${site_id} AND
+        WHERE shift_id=${shift.id} AND t.site_id=${site_id} AND
         (schedule_date='${date}' || date='${date}') AND trip_type='${type}'
         order by name;`
     // console.log(query);

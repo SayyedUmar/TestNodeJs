@@ -6,6 +6,7 @@ const moment = require('moment')
 const _ = require('lodash')
 const request = require('request')
 
+
 exports.getUserTrips = async (req, res) => {
     let { emp_id, current_date, start_date, end_date } = req.body;
     if (typeof emp_id !== 'number') {
@@ -144,8 +145,10 @@ exports.deleteUserShift = (req, res) => {
 
 const baseGoogleMapUrl2 = 'https://maps.googleapis.com/maps/api/directions/json?'
 const mapKey = 'AIzaSyCKmOycgAQLZGOsJBSFkhOp2LWakMC6vn0';
+// const mapKey = 'AIzaSyDdFf6z-3kmeqB1wRdvoHqeetb79TZulx0';
 
 exports.getDirections = (req, res) => {
+    // return res.json(helper.responseFormat(false, {}, {}, "locations array is required"))
     const { locations } = req.body;
     if (!locations || !Array.isArray(locations) || locations.length < 2) 
         return res.json(helper.responseFormat(false, {}, {}, "locations array is required"))
@@ -176,8 +179,86 @@ exports.getDirections = (req, res) => {
             if (body.status === 'OK') {
                 return res.json(helper.responseFormat(true,  body, {}, ""));
             } else {
-                res.json(helper.responseFormat(false, {}, body, body.error_message));
+                res.json(helper.responseFormat(false, {}, {body, mapKey}, body.error_message));
             }
         }
     });
 }
+
+exports.vehicles = (req, res) => {
+    console.log(req.body)
+    console.log(req.files)
+    res.json(helper.responseFormat(false, {}, {}, "Something went wrong"));
+}
+
+exports.sendTestNotif = async (req, res) => {
+    tripModel.sendTestNotif(req.body);
+    res.send(commonHelper.responseFormat(
+      true,
+      {},
+      {},
+      "Completed the trip"
+    ))
+  }
+
+
+
+
+exports.sendTestNotif = () => {
+    let message = {
+      // notification : {
+      //   title: 'title',
+      //   body: 'body'
+      // }
+      // data: {
+      //   push_type:"employee_trip_completed",
+      //   "priority":"high",
+      //   "content_available":"true",
+      //   employee_trip_id: 14454+'',
+      //   driver: JSON.stringify({
+      //     "user_id":"15233",
+      //     "username":"8369733451",
+      //     "email":"8369733451@gmail.com",
+      //     "f_name":"EbDriver",
+      //     "m_name":"null",
+      //     "l_name":"one",
+      //     "phone":"8369733451",
+      //     "profile_picture":"null",
+      //     "operating_organization":{"name":"null","phone":"null"}
+      //   }),
+      //   vehicle:JSON.stringify({
+      //     "id":"124","plate_number":"TEST007007","make":"2020-08-07T06:30:00.000Z",
+      //     "model":"ERTIGA","colour":"BLUE","seats":"4","make_year":"2015",
+      //     "photo":"https://vaayu-dev.s3.ap-south-1.amazonaws.com/vehicle_picture_url_1596811953.png"
+      //   }),
+      // }
+      // data : {
+      //   push_type: "driver_new_trip_assignment",
+      //   current_trip:'true',
+      //   trip_id:'2357',
+      //   trip_type: 'check_in',
+      //   passengers: '2',
+      //   approximate_distance: '705',
+      //   approximate_duration: '770',
+      //   assign_request_expired_date: '1597589434',
+      //   date: '1597589254',
+      //   status: 'created',
+      //   title:'title',
+      //   body:'body',
+      //   complex_object: JSON.stringify(
+      //     {
+      //       key: 'value',
+      //       key1: {
+      //         key: 'value',
+      //       },
+      //     }
+      //   )
+      // }
+    }
+    try {
+      admin.messaging().sendToTopic(`techmblrprod_user_15232`,message)
+    } catch (e){
+      console.log(e)
+    }
+    
+  }

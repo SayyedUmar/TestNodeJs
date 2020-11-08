@@ -12,10 +12,13 @@ import UserModel from "../models/userModel";
 
 // }
 
+const model = new UserModel();
+
 class TestController {
 
-    model = new UserModel()
-
+    constructor() {
+    }
+    
     getUsers(req: Request, res: Response) {
         res.json({ key: 'users' })
     }
@@ -27,21 +30,24 @@ class TestController {
             return res.json(helper.responseFormat(false, {}, {}, "user_id is required"))
         }
         try {
-            let user = await this.model.getUserShifts(user_id)
+            let user = await model.getUserShifts(user_id)
             return res.json(helper.responseFormat(true, user, {}, ""));
         } catch (e) {
             return res.json(helper.responseFormat(false, {}, { error: e }, "Something went wrong"));
         }
     }
 
-    async getAllShifts(req: Request, res: Response) {
+    getAllShifts(req: Request, res: Response) {
         var { site_id } = req.body;
         if (!site_id ) {
             return res.json(helper.responseFormat(false, {}, {}, "site_id, date is required"))
         }
         try {
-            let shifts = await this.model.getAllShifts(site_id)
-            return res.json(helper.responseFormat(true, shifts, {}, ""));
+            model.getAllShifts(site_id).then(shifts =>{
+                return res.json(helper.responseFormat(true, shifts, {}, ""));
+            }).catch(er => {
+                return res.json(helper.responseFormat(false, {}, { error: er }, "Something went wrong"));
+            });
         } catch (e) {
             return res.json(helper.responseFormat(false, {}, { error: e }, "Something went wrong"));
         }
@@ -56,7 +62,7 @@ class TestController {
             return res.json(helper.responseFormat(false, {}, {}, "employee_name is required"))
         }
         try {
-            let shifts = await this.model.searchEmployees(site_id, emp_name, shift_id, offset)
+            let shifts = await model.searchEmployees(site_id, emp_name, shift_id, offset)
             return res.json(helper.responseFormat(true, shifts, {}, ""));
         } catch (e) {
             return res.json(helper.responseFormat(false, {}, { error: e }, "Something went wrong"));
@@ -72,7 +78,7 @@ class TestController {
         }
 
         try {
-            let shifts = await this.model.setup_schedule(site_id, shift, trip_type, moment(date), list)
+            let shifts = await model.setup_schedule(site_id, shift, trip_type, moment(date), list)
             return res.json(helper.responseFormat(true, shifts, {}, ""));
         } catch (e) {
             return res.json(helper.responseFormat(false, {}, { error: e }, "Something went wrong"));
@@ -89,7 +95,7 @@ class TestController {
         d = d.substr(0, d.indexOf(':00.'))
         d = d + 'Z';
         try {
-            let shifts = await this.model.getShiftUsers(site_id, shift, trip_type, d)
+            let shifts = await model.getShiftUsers(site_id, shift, trip_type, d)
             return res.json(helper.responseFormat(true, shifts, {}, ""));
         } catch (e) {
             return res.json(helper.responseFormat(false, {}, { error: e }, "Something went wrong"));
@@ -106,14 +112,11 @@ class TestController {
         d = d.substr(0, d.indexOf(':00.'))
         d = d + 'Z';
 
-        this.model.deleteUserShift(site_id, shift, trip_type, d, employee_id, emp_trip_id)
+        model.deleteUserShift(site_id, shift, trip_type, d, employee_id, emp_trip_id)
             .then(val => res.json(helper.responseFormat(true, val, {}, "")))
             .catch(e => res.json(helper.responseFormat(false, {}, { error: e }, "Something went wrong")))
 
     }
 }
 
-export default new TestController()
-
-
-
+export default TestController

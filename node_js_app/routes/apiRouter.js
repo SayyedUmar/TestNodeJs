@@ -5,6 +5,11 @@ const middleware = require('../middleware');
 const user = require('../controllers/userController');
 const test = require('../controllers/testController');
 
+const multer   = require('multer');
+const multerUpload   = multer();
+const multipart = require('connect-multiparty');
+var multipartMiddleware = multipart();
+
 router.use(middleware.validateHeaders)
 
 router.get('/', (req, res) => {
@@ -28,6 +33,9 @@ router.post('/getShiftUsers', test.getShiftUsers);
 router.post('/deleteUserShift', test.deleteUserShift);
 
 router.post('/getDirections', test.getDirections);
+
+// router.post('/vehicles', multerUpload.single('image'), test.vehicles);
+router.post('/vehicles', multipartMiddleware, test.vehicles);
 
 
 module.exports = router

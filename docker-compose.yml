@@ -2,14 +2,22 @@ version: '3'
 
 services: 
     node_js_app: 
+        image: nodejs_api:v2
         env_file:
             - ./.env
         build:
             context: "./node_js_app"
             dockerfile: "Dockerfile"
+            # image: "node:10"
+            # volumes:
+            #     - ./induction_ms:/var/www/
+            # command:  ["npm", "run", "start:dev"]
         ports:
             - '8001:4001'
+            - "9229:9229"
         restart: on-failure
+        deploy:
+            replicas: 3
 
 # version: '2.1'
 
